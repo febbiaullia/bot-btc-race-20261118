@@ -60,6 +60,9 @@ await runBars({
     const bar = batch.bars.find((b) => b.symbol === 'CBBTC');
     if (bar === undefined) return [];
     const close = Number(bar.c);
+    // A malformed bar (a non-finite or non-positive close) must not poison
+    // the lookback: skip it entirely rather than recording a bogus close.
+    if (!Number.isFinite(close) || close <= 0) return [];
     closes.push(close);
     if (closes.length > LOOKBACK_BARS + 1) closes.shift();
 
